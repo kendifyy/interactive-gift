@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Interactive Gift — Short Video Presentation</title>
+<style>
+:root {
+  --bg: #0f1724;
+  --card: #0b1220;
+  --accent: #ff6b6b;
+  --muted: #9aa4b2;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  color: #e6eef6;
+  background: linear-gradient(180deg, #071027 0%, #071831 60%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* Stage wrapper */
+.stage {
+  width: 100%;
+  max-width: 900px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Heading and lead text animation */
+h1 {
+  margin: 0 0 12px;
+  font-size: 20px;
+  animation: fadeInDown 0.8s ease both;
+}
+p.lead {
+  margin: 0 0 18px;
+  color: var(--muted);
+  animation: fadeInDown 1s ease 0.2s both;
+}
+
+/* Gift box */
+.gift-wrap {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.box {
+  width: 220px;
+  height: 220px;
+  background: linear-gradient(180deg, #b2225a, #8b1740);
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: bounceGlow 2s infinite ease-in-out;
+  transition: transform 0.35s ease;
+}
+.box:hover {
+  transform: translateY(-6px) scale(1.05);
+}
+.ribbon {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.ribbon::before,
+.ribbon::after {
+  content: '';
+  position: absolute;
+  background: rgba(255,255,255,0.12);
+}
+.ribbon::before {
+  width: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
+  bottom: 0;
+}
+.ribbon::after {
+  height: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 0;
+  right: 0;
+}
+.bow {
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  transform: translateX(-50%);
+  width: 86px;
+  height: 60px;
+}
+.bow .l, .bow .r {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.14);
+  top: 0;
+}
+.bow .l { left: 0; transform: rotate(-30deg); }
+.bow .r { right: 0; transform: rotate(30deg); }
+.lid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 56px;
+  top: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  transform-origin: center top;
+  transition: transform 0.6s cubic-bezier(.2,.9,.2,1);
+  z-index: 2;
+}
+.box.open .lid {
+  transform: translateY(-72px) rotateX(18deg);
+}
+
+/* Video panel */
+.panel {
+  flex: 1;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.video-area {
+  background: var(--card);
+  border-radius: 10px;
+  padding: 12px;
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  position: relative;
+  overflow: hidden;
+}
+.video-area.hidden {
+  display: none;
+}
+video {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  border-radius: 6px;
+  display: block;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.04);
+  color: #fff;
+  cursor: pointer;
+}
+.btn:active { transform: scale(.98); }
+
+/* Modal styles */
+.modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.modal-content {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 300px;
+}
+.modal-content h2 {
+  margin-top: 0;
+  font-size: 18px;
+}
+.modal-content button {
+  margin-top: 15px;
+  padding: 8px 14px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.modal.hidden {
+  display: none;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes bounceGlow {
+  0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 8px rgba(255,107,107,0.4); }
+  50% { transform: translateY(-5px) scale(1.02); box-shadow: 0 0 16px rgba(255,107,107,0.7); }
+}
+
+/* Responsive */
+@media (max-width:720px) {
+  .gift-wrap { flex-direction: column; }
+  .box { width: 160px; height: 160px; }
+}
+</style>
+</head>
+<body>
+<div class="stage" role="main">
+  <h1>A Special Video Just for My Friends</h1>
+  <p class="lead">Tap or click the gift box to open your surprise.</p>
+
+  <div class="gift-wrap">
+    <div class="box" id="giftBox" tabindex="0" aria-label="Gift box, click to open">
+      <div class="lid" id="lid"></div>
+      <div class="ribbon"></div>
+      <div class="bow"><div class="l"></div><div class="r"></div></div>
+      <div style="z-index:1;color:white;font-weight:700;letter-spacing:1px">Open Me</div>
+    </div>
+
+    <div class="panel">
+      <div class="video-area hidden" id="videoArea">
+        <video id="giftVideo" playsinline preload="metadata" controls>
+          <source src="vid/One_for_the_book_Congratulations_evywann_small.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal hidden" id="messageModal">
+  <div class="modal-content">
+    <h2>💌 A Special Message</h2>
+    <p>Congratulations!
+
+As you’re reading this, I know for sure we’ve already survived Psychology school, and with that, I am so proud of you! I’ve witnessed how everyone struggled. From Intro to Psych and Psych Stats during freshman year, to Experimental and Abnormal Psychology in the second year, Medical Physics, Biochemistry, and Psych Assessment in the third year, and the never-ending research every semester.
+
+With Latin or not, I know everyone did their very best to wear that black cap and toga. You all look so great in it, by the way. This is probably the last time we’ll see each other as students. The next time we meet, we’ll be sitting at a table with coffee, talking about our careers or marriages. I just hope this friendship lasts a lifetime.
+
+I love and appreciate you all so much!
+
+Happy grad to us!!
+
+Love,
+Pat</p>
+    <button id="closeModal">Open Gift</button>
+  </div>
+</div>
+
+<script>
+const gift = document.getElementById('giftBox');
+const lid = document.getElementById('lid');
+const videoArea = document.getElementById('videoArea');
+const video = document.getElementById('giftVideo');
+const modal = document.getElementById('messageModal');
+const closeModalBtn = document.getElementById('closeModal');
+
+let modalShown = false;
+
+function openGift(){
+  if(gift.classList.contains('open')) return;
+  gift.classList.add('open');
+  setTimeout(()=>{
+    videoArea.classList.remove('hidden');
+    video.play().catch(()=>{});
+  }, 600);
+}
+
+gift.addEventListener('click', () => {
+  if(!modalShown){
+    modal.classList.remove('hidden');
+    modalShown = true;
+  } else {
+    openGift();
+  }
+});
+
+gift.addEventListener('keydown', e => {
+  if(e.key === 'Enter' || e.key === ' '){
+    if(!modalShown){
+      modal.classList.remove('hidden');
+      modalShown = true;
+    } else {
+      openGift();
+    }
+  }
+});
+
+closeModalBtn.addEventListener('click', () => {
+  modal.classList.add('hidden');
+  openGift();
+});
+</script>
+</body>
+</html>
